@@ -51,53 +51,53 @@
     },
   ];
 
-//   const favourites = [
-//     {
-//       ub: 762,
-//       lb: 753,
-//       symbol: "CIPLA",
-//     },
-//     {
-//       ub: 1190,
-//       lb: 1174,
-//       symbol: "PVR",
-//     },
-//     {
-//       ub: 732,
-//       lb: 723,
-//       symbol: "HAVELLS",
-//     },
-//     {
-//       ub: 188,
-//       lb: 183,
-//       symbol: "ZEEL",
-//     },
-//     {
-//       ub: 476,
-//       lb: 466,
-//       symbol: "TATACONSUM",
-//     },
-//     {
-//       ub: 174.65,
-//       lb: 171.10,
-//       symbol: "DLF",
-//     },
-//     {
-//       ub: 794.6,
-//       lb: 780,
-//       symbol: "GRASIM",
-//     },
-//     {
-//       ub: 465,
-//       lb: 456,
-//       symbol: "CUMMINSIND",
-//     },
-//     {
-//       ub: 965,
-//       lb: 952,
-//       symbol: "UBL",
-//     },
-//   ];
+  //   const favourites = [
+  //     {
+  //       ub: 762,
+  //       lb: 753,
+  //       symbol: "CIPLA",
+  //     },
+  //     {
+  //       ub: 1190,
+  //       lb: 1174,
+  //       symbol: "PVR",
+  //     },
+  //     {
+  //       ub: 732,
+  //       lb: 723,
+  //       symbol: "HAVELLS",
+  //     },
+  //     {
+  //       ub: 188,
+  //       lb: 183,
+  //       symbol: "ZEEL",
+  //     },
+  //     {
+  //       ub: 476,
+  //       lb: 466,
+  //       symbol: "TATACONSUM",
+  //     },
+  //     {
+  //       ub: 174.65,
+  //       lb: 171.10,
+  //       symbol: "DLF",
+  //     },
+  //     {
+  //       ub: 794.6,
+  //       lb: 780,
+  //       symbol: "GRASIM",
+  //     },
+  //     {
+  //       ub: 465,
+  //       lb: 456,
+  //       symbol: "CUMMINSIND",
+  //     },
+  //     {
+  //       ub: 965,
+  //       lb: 952,
+  //       symbol: "UBL",
+  //     },
+  //   ];
 
   return processPreOpenMarket();
 
@@ -105,59 +105,75 @@
     let result = await preOpenMarket();
     const filteredResults = result.data.filter((d) => {
       const symbol = d.metadata.symbol;
-      return favourites.find((f) => f.symbol === symbol);
+      const fav = favourites.find((f) => f.symbol === symbol);
+      if (fav) {
+        fav.data = d;
+      }
+      return !!fav;
     });
-    
-    const sortedResults = filteredResults.sort((a, b) => {
-      const aChange = Math.abs(a.metadata.pChange),
-        bChange = Math.abs(b.metadata.pChange);
+
+    const processedResults = favourites.map((favourite) => {
+      const d = favourite.data;
+      const symbol = d.metadata.symbol;
+      const lastPrice = d.metadata.lastPrice;
+      const pChange = d.metadata.pChange;
+      const udiff = favourite.ub - lastPrice;
+      const ldiff = lastPrice - favourite.lb;
+
+      let position;
+      let msg = "";
+
+      if (udiff < 0) {
+        position = "BUY";
+        msg += "Upper breakpoint already crossed";
+      } else if (ldiff < 0) {
+        position = "SELL";
+        msg += "Lower breakpoint already crossed";
+      } else if (udiff === ldiff) {
+        position = pChange > 0 ? "BUY" : "SELL";
+      } else if (udiff < ldiff) {
+        position = "BUY";
+      } else {
+        position = "SELL";
+      }
+
+      const ocoDetails =
+        position === "BUY"
+          ? oco(favourite.ub, lastPrice, true)
+          : oco(favourite.lb, lastPrice, false);
+
+      if (pChange > 0 && position === "SELL") {
+        msg += `Moving in uptrend? ub : ${favourite.ub}`;
+      } else if (pChange < 0 && position === "BUY") {
+        msg += `Moving in downtrend? lb : ${favourite.lb}`;
+      }
+
+      return {
+        symbol,
+        position,
+        ...ocoDetails,
+        purpose: d.metadata.purpose,
+        lastPrice,
+        msg,
+        pChange,
+      };
+    });
+
+    return processedResults.sort((a, b) => {
+      const aChange = a.perNeededToTrigger,
+        bChange = b.perNeededToTrigger;
       if (aChange < bChange) {
-        return 1;
+        return -1;
       }
       if (aChange > bChange) {
-        return -1;
+        return 1;
       }
       // a must be equal to b
       return 0;
     });
-
-    return sortedResults.map((d) => {
-      const symbol = d.metadata.symbol;
-      const favourite = favourites.find((f) => f.symbol === symbol);
-      let ocoDetails = {};
-      let position = "SELL";
-      const lastPrice = d.metadata.lastPrice;
-      let msg = null;
-      if (d.metadata.pChange > 0) {
-        ocoDetails = oco(favourite.ub, true);
-        position = "BUY";
-        if(lastPrice > favourite.ub){
-            msg = "Breakpoint already breaked" 
-        }
-      } else {
-        ocoDetails = oco(favourite.lb, false);
-        position = "SELL";
-        if(lastPrice < favourite.lb){
-            msg = "Breakpoint already breaked" 
-        }
-      }
-      return {
-        SYMBOL: symbol,
-        POSITION: position,
-        VOLUME: ocoDetails.volume,
-        TRIGGER: ocoDetails.trigger,
-        PRICE: ocoDetails.price,
-        STOP_LOSS: ocoDetails.stopLoss,
-        TARGET: ocoDetails.target,
-        TRAILING: ocoDetails.trailing,
-        PURPOSE: d.metadata.purpose,
-        LAST_PRICE: lastPrice,
-        MESSAGE : msg
-      };
-    });
   }
 
-  function oco(breakpoint, buy) {
+  function oco(breakpoint, lastPrice, buy) {
     const triggerChange = Math.max(
       leastTicker,
       leastTickerRounding(breakpoint * 0.0001)
@@ -171,13 +187,23 @@
     const volume = Math.floor(fundForOneTrade / bidPrice);
     const target = leastTickerRounding(bidPrice * profitMargin);
     const stopLoss = leastTickerRounding(target * riskAppetite);
+    const changeNeeded = Math.abs(triggerPrice - lastPrice);
+    let perNeededToTrigger = 0;
+    if (buy && breakpoint <= lastPrice) {
+      perNeededToTrigger = 0;
+    } else if (!buy && breakpoint >= lastPrice) {
+      perNeededToTrigger = 0;
+    } else {
+      perNeededToTrigger = (changeNeeded / triggerPrice) * 100;
+    }
     return {
       volume,
-      trigger: leastTickerRounding(triggerPrice),
-      price: leastTickerRounding(bidPrice),
-      stopLoss: leastTickerRounding(stopLoss),
-      target: leastTickerRounding(target),
+      trigger: triggerPrice,
+      price: bidPrice,
+      stopLoss: stopLoss,
+      target: target,
       trailing: Math.ceil(stopLoss / leastTicker),
+      perNeededToTrigger,
     };
   }
 
@@ -210,5 +236,16 @@
     return await response.json();
   }
 })()
-  .then((data) => console.log(JSON.stringify(data, null, 4)))
+  .then((results) => {
+    console.clear();
+    results.forEach((result) => {
+      console.log(`${result.symbol} : ${result.position} - ${result.volume} 
+      trigger : ${result.trigger}, price : ${result.price}
+      stoploss : ${result.stopLoss}, target : ${result.target}
+      trailing : ${result.trailing}
+      lastPrice : ${result.lastPrice} , %change : ${result.pChange.toFixed(2)}, 
+      %change needed : ${result.perNeededToTrigger.toFixed(2)},
+       ${result.msg}`);
+    });
+  })
   .catch(console.error);

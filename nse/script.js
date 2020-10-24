@@ -4,7 +4,7 @@
   const noOfTrades = 4;
   const riskAppetite = 0.5;
   const profitMargin = 0.004;
-  const leastTicker = 0.05;
+  const leastTicker = 0.1; // 0.05;
 
   const fundForOneTrade = (totalFund * leverage) / 4;
 
@@ -51,35 +51,53 @@
     },
   ];
 
-  //   const favourites = [
-  //     {
-  //       symbol: "HAVELLS",
-  //     },
-  //     {
-  //       symbol: "PVR",
-  //     },
-  //     {
-  //       symbol: "CIPLA",
-  //     },
-  //     {
-  //       symbol: "ZEEL",
-  //     },
-  //     {
-  //       symbol: "TATACONSUM",
-  //     },
-  //     {
-  //       symbol: "DLF",
-  //     },
-  //     {
-  //       symbol: "GRASIM",
-  //     },
-  //     {
-  //       symbol: "CUMMINSIND",
-  //     },
-  //     {
-  //       symbol: "UBL",
-  //     },
-  //   ];
+//   const favourites = [
+//     {
+//       ub: 762,
+//       lb: 753,
+//       symbol: "CIPLA",
+//     },
+//     {
+//       ub: 1190,
+//       lb: 1174,
+//       symbol: "PVR",
+//     },
+//     {
+//       ub: 732,
+//       lb: 723,
+//       symbol: "HAVELLS",
+//     },
+//     {
+//       ub: 188,
+//       lb: 183,
+//       symbol: "ZEEL",
+//     },
+//     {
+//       ub: 476,
+//       lb: 466,
+//       symbol: "TATACONSUM",
+//     },
+//     {
+//       ub: 174.65,
+//       lb: 171.10,
+//       symbol: "DLF",
+//     },
+//     {
+//       ub: 794.6,
+//       lb: 780,
+//       symbol: "GRASIM",
+//     },
+//     {
+//       ub: 465,
+//       lb: 456,
+//       symbol: "CUMMINSIND",
+//     },
+//     {
+//       ub: 965,
+//       lb: 952,
+//       symbol: "UBL",
+//     },
+//   ];
 
   return processPreOpenMarket();
 
@@ -89,6 +107,7 @@
       const symbol = d.metadata.symbol;
       return favourites.find((f) => f.symbol === symbol);
     });
+    
     const sortedResults = filteredResults.sort((a, b) => {
       const aChange = Math.abs(a.metadata.pChange),
         bChange = Math.abs(b.metadata.pChange);
@@ -108,46 +127,62 @@
       let ocoDetails = {};
       let position = "SELL";
       const lastPrice = d.metadata.lastPrice;
+      let msg = null;
       if (d.metadata.pChange > 0) {
         ocoDetails = oco(favourite.ub, true);
         position = "BUY";
+        if(lastPrice > favourite.ub){
+            msg = "Breakpoint already breaked" 
+        }
       } else {
         ocoDetails = oco(favourite.lb, false);
         position = "SELL";
+        if(lastPrice < favourite.lb){
+            msg = "Breakpoint already breaked" 
+        }
       }
       return {
-        "SYMBOL" : symbol,
-        "POSITION" : position,
-        "LAST_PRICE" : lastPrice,
-        ...ocoDetails,
-        "PURPOSE" : d.metadata.purpose,
+        SYMBOL: symbol,
+        POSITION: position,
+        VOLUME: ocoDetails.volume,
+        TRIGGER: ocoDetails.trigger,
+        PRICE: ocoDetails.price,
+        STOP_LOSS: ocoDetails.stopLoss,
+        TARGET: ocoDetails.target,
+        TRAILING: ocoDetails.trailing,
+        PURPOSE: d.metadata.purpose,
+        LAST_PRICE: lastPrice,
+        MESSAGE : msg
       };
     });
   }
 
   function oco(breakpoint, buy) {
-    const triggerChange = Math.max(leastTicker, leastTickerRounding(breakpoint * 0.0001));
-    const triggerPrice = leastTickerRounding(buy
-      ? breakpoint + triggerChange
-      : breakpoint - triggerChange);
-    const bidPrice = leastTickerRounding(buy
-      ? triggerPrice + triggerChange
-      : triggerPrice - triggerPrice);
+    const triggerChange = Math.max(
+      leastTicker,
+      leastTickerRounding(breakpoint * 0.0001)
+    );
+    const triggerPrice = leastTickerRounding(
+      buy ? breakpoint + triggerChange : breakpoint - triggerChange
+    );
+    const bidPrice = leastTickerRounding(
+      buy ? triggerPrice + triggerChange : triggerPrice - triggerChange
+    );
     const volume = Math.floor(fundForOneTrade / bidPrice);
     const target = leastTickerRounding(bidPrice * profitMargin);
     const stopLoss = leastTickerRounding(target * riskAppetite);
     return {
-      "VOLUME":volume,
-      "TRIGGER": leastTickerRounding(triggerPrice),
-      "PRICE": leastTickerRounding(bidPrice),
-      "STOP_LOSS": leastTickerRounding(stopLoss),
-      "TARGET": leastTickerRounding(target),
-      "TRAILING" : Math.ceil(stopLoss / leastTicker)
+      volume,
+      trigger: leastTickerRounding(triggerPrice),
+      price: leastTickerRounding(bidPrice),
+      stopLoss: leastTickerRounding(stopLoss),
+      target: leastTickerRounding(target),
+      trailing: Math.ceil(stopLoss / leastTicker),
     };
   }
 
   function leastTickerRounding(x) {
-    return parseFloat((Math.floor(x/leastTicker) * leastTicker).toFixed(2));
+    return parseFloat((Math.floor(x / leastTicker) * leastTicker).toFixed(2));
   }
 
   async function preOpenMarket() {

@@ -19,6 +19,17 @@ app.get("/get_market_status", (req, res, next) => {
   NSEAPI.getMarketStatus()
     .then(function (response) {
       res.json(response.data);
+    }).catch((err)=>{
+      res.status(500).json(err.message);
+    });
+});
+
+app.get("/nse/get_pre_open_market", (req, res, next) => {
+  NSEAPI.getPreOpenMarketData()
+    .then(function (response) {
+      res.json(response.data);
+    }).catch((err)=>{
+      res.status(500).json(err.message);
     });
 });
 
@@ -28,6 +39,8 @@ app.get("/nse/get_indices", (req, res, next) => {
   NSEAPI.getIndices()
     .then(function (response) {
       res.json(response.data);
+    }).catch((err)=>{
+      res.status(500).json(err.message);
     });
 });
 
@@ -37,6 +50,8 @@ app.get("/nse/get_quotes", (req, res, next) => {
   NSEAPI.getQuotes()
     .then(function (response) {
       res.json(response.data);
+    }).catch((err)=>{
+      res.status(500).json(err.message);
     });
 });
 
@@ -46,6 +61,8 @@ app.get("/nse/get_quote_info", (req, res, next) => {
   NSEAPI.getQuoteInfo(req.query.companyName)
     .then(function (response) {
       res.json(response.data);
+    }).catch((err)=>{
+      res.status(500).json(err.message);
     });
 });
 
@@ -55,6 +72,8 @@ app.get("/nse/get_gainers", (req, res, next) => {
   NSEAPI.getGainers()
     .then(function (response) {
       res.json(response.data);
+    }).catch((err)=>{
+      res.status(500).json(err.message);
     });
 });
 
@@ -64,6 +83,8 @@ app.get("/nse/get_losers", (req, res, next) => {
   NSEAPI.getLosers()
     .then(function (response) {
       res.json(response.data);
+    }).catch((err)=>{
+      res.status(500).json(err.message);
     });
 });
 
@@ -73,6 +94,8 @@ app.get("/nse/get_incline_decline", (req, res, next) => {
   NSEAPI.getInclineDecline()
     .then(function (response) {
       res.json(response.data);
+    }).catch((err)=>{
+      res.status(500).json(err.message);
     });
 });
 
@@ -82,6 +105,8 @@ app.get("/nse/get_index_stocks", (req, res, next) => {
   NSEAPI.getIndexStocks(req.query.symbol)
     .then(function (response) {
       res.json(response.data);
+    }).catch((err)=>{
+      res.status(500).json(err.message);
     });
 });
 
@@ -91,6 +116,8 @@ app.get("/nse/search_stocks", (req, res, next) => {
   NSEAPI.searchStocks(req.query.keyword)
     .then(function (response) {
       res.json(response.data);
+    }).catch((err)=>{
+      res.status(500).json(err.message);
     });
 });
 
@@ -101,6 +128,8 @@ app.get("/nse/get_intra_day_data", (req, res, next) => {
   NSEAPI.getIntraDayData(req.query.companyName, req.query.time)
     .then(function (response) {
       res.json(response.data);
+    }).catch((err)=>{
+      res.status(500).json(err.message);
     });
 });
 
@@ -110,6 +139,8 @@ app.get("/nse/get_52_week_high", (req, res, next) => {
   NSEAPI.get52WeekHigh()
     .then(function (response) {
       res.json(response.data);
+    }).catch((err)=>{
+      res.status(500).json(err.message);
     });
 });
 
@@ -119,6 +150,9 @@ app.get("/nse/get_52_week_low", (req, res, next) => {
   NSEAPI.get52WeekLow()
     .then(function (response) {
       res.json(response.data);
+    })
+    .catch((err)=>{
+      res.status(500).json(err.message);
     });
 });
 
@@ -128,6 +162,8 @@ app.get("/nse/get_top_value_stocks", (req, res, next) => {
   NSEAPI.getTopValueStocks()
     .then(function (response) {
       res.json(response.data);
+    }).catch((err)=>{
+      res.status(500).json(err.message);
     });
 });
 
@@ -137,6 +173,8 @@ app.get("/nse/get_top_volume_stocks", (req, res, next) => {
   NSEAPI.getTopVolumeStocks()
     .then(function (response) {
       res.json(response.data);
+    }).catch((err)=>{
+      res.status(500).json(err.message);
     });
 });
 
@@ -147,6 +185,8 @@ app.get("/nse/get_stock_futures_data", (req, res, next) => {
   NSEAPI.getStockFuturesData(req.query.companyName, req.query.time)
     .then(function (response) {
       res.json(response.data);
+    }).catch((err)=>{
+      res.status(500).json(err.message);
     });
 });
 
@@ -157,6 +197,8 @@ app.get("/nse/get_chart_data_new", (req, res, next) => {
   NSEAPI.getChartDataNew(req.query.companyName, req.query.time)
     .then(function (response) {
       res.json(response.data);
+    }).catch((err)=>{
+      res.status(500).json(err.message);
     });
 });
 
@@ -168,6 +210,8 @@ app.get("/bse/get_indices", (req, res, next) => {
   BSEAPI.getIndices()
     .then(function (response) {
       res.json(response.data);
+    }).catch((err)=>{
+      res.status(500).json(err.message);
     });
 });
 
@@ -177,6 +221,8 @@ app.get("/bse/getIndexInfo", (req, res, next) => {
   BSEAPI.getIndexInfo(req.query.indexId)
     .then(function (response) {
       res.json(response.data);
+    }).catch((err)=>{
+      res.status(500).json(err.message);
     });
 });
 
@@ -186,6 +232,8 @@ app.get("/bse/get_index_chart_data", (req, res, next) => {
   BSEAPI.getIndexChartData(req.query.indexId, req.query.time)
     .then(function (response) {
       res.json(response.data);
+    }).catch((err)=>{
+      res.status(500).json(err.message);
     });
 });
 
@@ -195,6 +243,8 @@ app.get("/bse/get_index_stocks", (req, res, next) => {
   BSEAPI.getIndexStocks(req.query.indexId)
     .then(function (response) {
       res.json(response.data);
+    }).catch((err)=>{
+      res.status(500).json(err.message);
     });
 });
 
@@ -205,6 +255,8 @@ app.get("/bse/get_company_info", (req, res, next) => {
   BSEAPI.getCompanyInfo(req.query.companyKey)
     .then(function (response) {
       res.json(response.data);
+    }).catch((err)=>{
+      res.status(500).json(err.message);
     });
 });
 
@@ -216,6 +268,8 @@ app.get("/bse/get_stocks_chart_data", (req, res, next) => {
   BSEAPI.getStocksChartData(req.query.companyKey, req.query.time)
     .then(function (response) {
       res.json(response.data);
+    }).catch((err)=>{
+      res.status(500).json(err.message);
     });
 });
 
@@ -225,6 +279,8 @@ app.get("/bse/get_stock_info_and_day_chart_data", (req, res, next) => {
   BSEAPI.getStockInfoAndDayChartData(req.query.companyKey)
     .then(function (response) {
       res.json(response.data);
+    }).catch((err)=>{
+      res.status(500).json(err.message);
     });
 });
 
@@ -234,6 +290,8 @@ app.get("/bse/get_gainers", (req, res, next) => {
   BSEAPI.getGainers()
     .then(function (response) {
       res.json(response.data);
+    }).catch((err)=>{
+      res.status(500).json(err.message);
     });
 });
 
@@ -243,6 +301,8 @@ app.get("/bse/get_losers", (req, res, next) => {
   BSEAPI.getLosers()
     .then(function (response) {
       res.json(response.data);
+    }).catch((err)=>{
+      res.status(500).json(err.message);
     });
 });
 
@@ -252,6 +312,8 @@ app.get("/bse/getTopTurnOvers", (req, res, next) => {
   BSEAPI.getTopTurnOvers()
     .then(function (response) {
       res.json(response.data);
+    }).catch((err)=>{
+      res.status(500).json(err.message);
     });
 });
 

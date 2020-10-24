@@ -15,3 +15,4 @@ exports.YEAR_LOW_URL = 'https://www1.nseindia.com/products/dynaContent/equities/
 exports.TOP_VALUE_URL = 'https://www1.nseindia.com/live_market/dynaContent/live_analysis/most_active/allTopValue1.json';
 exports.TOP_VOLUME_URL = 'https://www1.nseindia.com/live_market/dynaContent/live_analysis/most_active/allTopVolume1.json';
 exports.NEW_CHART_DATA_URL = 'https://www1.nseindia.com/ChartApp/install/charts/data/GetHistoricalNew.jsp';
+exports.PRE_OPEN_URL = 'https://www.nseindia.com/api/market-data-pre-open';

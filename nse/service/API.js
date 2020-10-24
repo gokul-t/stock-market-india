@@ -20,6 +20,8 @@ var YEAR_LOW_URL = require('../constant').YEAR_LOW_URL;
 var TOP_VALUE_URL = require('../constant').TOP_VALUE_URL;
 var TOP_VOLUME_URL = require('../constant').TOP_VOLUME_URL;
 var NEW_CHART_DATA_URL = require('../constant').NEW_CHART_DATA_URL;
+const PRE_OPEN_URL = require('../constant').PRE_OPEN_URL;
+
 
 function getTime(periodType, time) {
   if (periodType === 1) {
@@ -116,6 +118,17 @@ function getQuoteInfo(symbol) {
   return axios.get(QUOTE_INFO_URL + encodeURIComponent(symbol), {
     headers: {
       Referer: GET_QUOTE_URL + encodeURIComponent(symbol),
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  })
+}
+
+function getPreOpenMarketData(symbol="ALL") {
+  const url = PRE_OPEN_URL+ "?key=" + encodeURIComponent(symbol);
+  console.log(url);
+  return axios.get(url, {
+    headers: {
+      Referer: url,
       'X-Requested-With': 'XMLHttpRequest'
     }
   })
@@ -270,7 +283,8 @@ var NSEAPI = {
   get52WeekLow: get52WeekLow,
   getTopValueStocks: getTopValueStocks,
   getTopVolumeStocks: getTopVolumeStocks,
-  getChartDataNew: getChartDataNew
+  getChartDataNew: getChartDataNew,
+  getPreOpenMarketData
 };
 
 module.exports = NSEAPI;

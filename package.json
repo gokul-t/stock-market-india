@@ -4,6 +4,7 @@
   "description": "\"An API Library which fetches data from Bombay Stock Exchange and National Stock Exchange and returns data in JSON format.\"",
   "main": "app.js",
   "scripts": {
+    "start": "nodemon app.js 3000",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -33,5 +34,8 @@
     "express": "^4.16.4",
     "indian-stock-exchange": "^1.3.33",
     "loadash": "^1.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.6"
   }
 }

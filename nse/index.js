@@ -172,7 +172,8 @@ var nse = {
   get52WeekLow: get52WeekLow,
   getTopValueStocks: getTopValueStocks,
   getTopVolumeStocks: getTopVolumeStocks,
-  getChartDataNew: getChartDataNew
+  getChartDataNew: getChartDataNew,
+  getPreOpenMarketData : NSEAPI.getPreOpenMarketData
 };
 
 module.exports = nse;
